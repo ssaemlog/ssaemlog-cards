@@ -57,7 +57,20 @@ def publish(post, user_id, base):
     return call("POST", f"{user_id}/media_publish", creation_id=parent["id"])["id"]
 
 
+def check():
+    """게시하지 않고 연결만 확인: 계정 조회 + 첫 이미지로 컨테이너 생성(게시 안 함, 24시간 뒤 자동 만료)"""
+    uid = os.environ["IG_USER_ID"]
+    me = call("GET", uid, fields="username")
+    print("계정 확인:", me.get("username"))
+    first = json.load(open(SCHEDULE, encoding="utf-8"))[0]
+    c = call("POST", f"{uid}/media", image_url=os.environ["IMAGE_BASE"] + first["images"][0], is_carousel_item="true")
+    wait_ready(c["id"])
+    print("이미지 업로드 확인: OK (게시하지 않음)")
+
+
 def main():
+    if os.environ.get("CHECK") == "1":
+        return check()
     schedule = json.load(open(SCHEDULE, encoding="utf-8"))
     posted = json.load(open(POSTED, encoding="utf-8")) if os.path.exists(POSTED) else {}
     now = datetime.now(KST)
