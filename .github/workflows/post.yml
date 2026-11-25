@@ -7,6 +7,9 @@ on:
       dry_run:
         description: "1이면 실제 게시 없이 확인만"
         default: "0"
+      check:
+        description: "1이면 게시 없이 토큰·이미지 연결만 점검"
+        default: "0"
 permissions:
   contents: write
 concurrency: ig-post
@@ -21,6 +24,7 @@ jobs:
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           IMAGE_BASE: https://raw.githubusercontent.com/${{ github.repository }}/main/cards/
           DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
+          CHECK: ${{ github.event.inputs.check || '0' }}
         run: python3 post.py
       - name: 게시 기록 저장
         run: |
