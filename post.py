@@ -10,7 +10,9 @@ import json, os, sys, time, urllib.parse, urllib.request
 from datetime import datetime, timezone, timedelta
 
 KST = timezone(timedelta(hours=9))
-API = "https://graph.instagram.com/" + os.environ.get("GRAPH_VERSION", "v24.0")
+# 인스타 로그인 토큰(IG...)은 graph.instagram.com, 페이스북 쪽 토큰(EA...)은 graph.facebook.com
+_HOST = "https://graph.instagram.com/" if os.environ.get("IG_TOKEN", "").startswith("IG") else "https://graph.facebook.com/"
+API = _HOST + os.environ.get("GRAPH_VERSION", "v24.0")
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SCHEDULE = os.path.join(ROOT, "schedule.json")
 POSTED = os.path.join(ROOT, "posted.json")
