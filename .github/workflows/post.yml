@@ -1,7 +1,9 @@
 name: 인스타 예약 게시
 on:
   schedule:
-    - cron: "*/30 * * * *"   # 30분마다 확인 (GitHub 사정으로 몇 분~수십 분 늦을 수 있음)
+    - cron: "*/30 * * * *"   # 30분마다 확인 (GitHub 사정으로 늦을 수 있음)
+  push:
+    paths: ["schedule.json", "render/**"]   # 일정·카드 문구가 바뀌면 바로 카드 렌더
   workflow_dispatch:
     inputs:
       dry_run:
@@ -18,6 +20,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: 카드 렌더 필요한지 확인
+        id: need
+        run: python3 render/render.py --check
+      - name: 렌더 도구 설치 (한글 폰트 + playwright)
+        if: steps.need.outputs.need == '1'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk
+          pip install -q playwright
+      - name: 카드 렌더
+        if: steps.need.outputs.need == '1'
+        run: python3 render/render.py
+      - name: 렌더한 카드 저장
+        if: steps.need.outputs.need == '1'
+        run: |
+          git config user.name "ig-bot"
+          git config user.email "ig-bot@users.noreply.github.com"
+          git add cards
+          git diff --cached --quiet || (git commit -m "카드 렌더" && git pull --rebase && git push)
       - name: 게시
         env:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
@@ -31,4 +51,4 @@ jobs:
           git config user.name "ig-bot"
           git config user.email "ig-bot@users.noreply.github.com"
           git add posted.json
-          git diff --cached --quiet || (git commit -m "게시 기록" && git push)
+          git diff --cached --quiet || (git commit -m "게시 기록" && git pull --rebase && git push)
