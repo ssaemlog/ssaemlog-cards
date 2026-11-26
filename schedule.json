@@ -79,5 +79,40 @@
       "post6_05.jpg",
       "post6_06.jpg"
     ]
+  },
+  {
+    "id": "99_렌더테스트",
+    "publish_at": "2099-01-01T12:30:00+09:00",
+    "caption": "렌더 시험용 (게시 안 됨)",
+    "slides": [
+      {
+        "kind": "cover",
+        "title": "렌더 시험\n사진이 들어간 표지",
+        "lines": [
+          "GitHub에서 그린 카드"
+        ],
+        "photo": {
+          "url": "https://unsplash.com/photos/7UoAoaVVyRE/download?force=true&w=1600",
+          "credit": "Ahmet Kurt / Unsplash"
+        }
+      },
+      {
+        "kind": "reason",
+        "tag": "일러스트",
+        "title": "일러스트 카드",
+        "lines": [
+          "한글 폰트가 제대로 나오는지",
+          "확인하는 카드예요."
+        ],
+        "art": "reformer"
+      },
+      {
+        "kind": "question",
+        "title": "시험 질문 카드",
+        "lines": [
+          "댓글로 들려주세요"
+        ]
+      }
+    ]
   }
 ]
