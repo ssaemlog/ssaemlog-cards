@@ -44,9 +44,16 @@ def wait_ready(container_id):
     raise RuntimeError(f"컨테이너 {container_id} 준비 시간 초과")
 
 
+def images_of(post):
+    """images 가 없으면 render.py 가 만든 cards/r/<id>_NN.jpg 를 쓴다"""
+    if post.get("images"):
+        return post["images"]
+    return [f"r/{post['id']}_{i:02d}.jpg" for i in range(1, len(post["slides"]) + 1)]
+
+
 def publish(post, user_id, base):
     children = []
-    for img in post["images"]:
+    for img in images_of(post):
         c = call("POST", f"{user_id}/media", image_url=base + img, is_carousel_item="true")
         children.append(c["id"])
     for c in children:
@@ -63,7 +70,7 @@ def check():
     me = call("GET", uid, fields="username")
     print("계정 확인:", me.get("username"))
     first = json.load(open(SCHEDULE, encoding="utf-8"))[0]
-    c = call("POST", f"{uid}/media", image_url=os.environ["IMAGE_BASE"] + first["images"][0], is_carousel_item="true")
+    c = call("POST", f"{uid}/media", image_url=os.environ["IMAGE_BASE"] + images_of(first)[0], is_carousel_item="true")
     wait_ready(c["id"])
     print("이미지 업로드 확인: OK (게시하지 않음)")
 
@@ -82,7 +89,7 @@ def main():
         return
     # 한 번 실행에 1개만 올린다 (밀린 게 여러 개여도 몰아서 올리지 않음)
     post = sorted(due, key=lambda p: p["publish_at"])[0]
-    print(f"게시 대상: {post['id']} ({len(post['images'])}장)")
+    print(f"게시 대상: {post['id']} ({len(images_of(post))}장)")
     if dry:
         print(post["caption"])
         return
