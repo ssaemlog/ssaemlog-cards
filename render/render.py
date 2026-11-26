@@ -122,7 +122,12 @@ async def render(posts, out_dir=OUT, chrome=None):
             for p in posts:
                 n = len(p["slides"])
                 for i, s in enumerate(p["slides"], 1):
-                    uri = fetch_photo(s["photo"]["url"], tmp) if s.get("photo", {}).get("url") else None
+                    uri = None
+                    if s.get("photo", {}).get("url"):
+                        try:
+                            uri = fetch_photo(s["photo"]["url"], tmp)
+                        except Exception as e:   # 사진을 못 받으면 멈추지 않고 일러스트(또는 글만)로 그림
+                            print(f"경고: 사진을 받지 못해 일러스트로 대체 ({p['id']} {i}장): {e}")
                     await pg.set_content(card_html(s, i, n, uri), wait_until="load")
                     await pg.wait_for_timeout(150)
                     target = out_dir / f"{p['id']}_{i:02d}.jpg"
